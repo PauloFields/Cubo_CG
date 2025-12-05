@@ -26,22 +26,24 @@ struct cubo {
     GLfloat cubeTranslate[3];
     GLfloat cubeScale[3];
     GLfloat cubeTheta[3];
-    GLfloat dir[3];
-    GLfloat vel[3];
     GLfloat color[3];
+    GLfloat alpha; // angulo xy
+    GLfloat beta;  // angulo xz
+    GLfloat vel;
     int show, showAxis;
 };
 
 Cubo newCubo() {
     Cubo c = malloc(sizeof(struct cubo));
     for (int i = 0; i < 3; i++) {
-        c->cubeTranslate[i] = 0.0f;
-        c->cubeTheta[i] = 0.0f;
-        c->dir[i] = 0.0f;
-        c->vel[i] = 0.0f;
-        c->cubeScale[i] = 1.0f;
-        c->color[i] = 1.0f;
+        c->cubeTranslate[i] = 0.0;
+        c->cubeScale[i] = 1.0;
+        c->cubeTheta[i] = 0.0;
+        c->color[i] = 1.0;
     }
+    c->alpha = 0.0;
+    c->beta = 0.0;
+    c->vel = 0.0;
     c->show = 1;
     c->showAxis = 0;
     return c;
@@ -50,7 +52,8 @@ Cubo newCubo() {
 Cubo newCuboP(GLfloat tx, GLfloat ty, GLfloat tz,
     GLfloat sx, GLfloat sy, GLfloat sz,
     GLfloat rx, GLfloat ry, GLfloat rz,
-    GLfloat vx, GLfloat vy, GLfloat vz) {
+    GLfloat r, GLfloat g, GLfloat b,
+    GLfloat vel, GLfloat alpha, GLfloat beta) {
 
     Cubo c = malloc(sizeof(struct cubo));
     c->cubeTranslate[0] = tx;
@@ -62,13 +65,12 @@ Cubo newCuboP(GLfloat tx, GLfloat ty, GLfloat tz,
     c->cubeTheta[0] = rx;
     c->cubeTheta[1] = ry;
     c->cubeTheta[2] = rz;
-    c->vel[0] = vx;
-    c->vel[1] = vy;
-    c->vel[2] = vz;
-    for (int i = 0; i < 3; i++) {
-        c->dir[i] = 0.0f;
-        c->color[i] = 1.0f;
-    }
+    c->color[0] = r;
+    c->color[1] = g;
+    c->color[2] = b;
+    c->alpha = alpha;
+    c->beta = beta;
+    c->vel = vel;
     c->show = 1;
     c->showAxis = 0;
     return c;
@@ -80,10 +82,11 @@ Cubo newCuboC(Cubo src) {
         c->cubeTranslate[i] = src->cubeTranslate[i];
         c->cubeScale[i] = src->cubeScale[i];
         c->cubeTheta[i] = src->cubeTheta[i];
-        c->dir[i] = src->dir[i];
-        c->vel[i] = src->vel[i];
         c->color[i] = src->color[i];
     }
+    c->alpha = src->alpha;
+    c->beta = src->beta;
+    c->vel = src->vel;
     c->show = src->show;
     c->showAxis = src->showAxis;
     return c;
@@ -92,16 +95,20 @@ Cubo newCuboC(Cubo src) {
 GLfloat* getCubeTranslate(Cubo c) { return c->cubeTranslate; }
 GLfloat* getCubeScale(Cubo c) { return c->cubeScale; }
 GLfloat* getCubeTheta(Cubo c) { return c->cubeTheta; }
-GLfloat* getCubeDir(Cubo c) { return c->dir; }
-GLfloat* getCubeVel(Cubo c) { return c->vel; }
 GLfloat* getCubeColor(Cubo c) { return c->color; }
+GLfloat getCubeAlpha(Cubo c) { return c->alpha; }
+GLfloat getCubeBeta(Cubo c) { return c->beta; }
+GLfloat getCubeVel(Cubo c) { return c->vel; }
+GLfloat getCubeShow(Cubo c) { return c->show; }
+GLfloat getCubeShowAxis(Cubo c) { return c->showAxis; }
 
 void setCubeTranslate(Cubo c, GLfloat tx, GLfloat ty, GLfloat tz) { c->cubeTranslate[0] = tx; c->cubeTranslate[1] = ty; c->cubeTranslate[2] = tz; }
 void setCubeScale(Cubo c, GLfloat sx, GLfloat sy, GLfloat sz) { c->cubeScale[0] = sx; c->cubeScale[1] = sy; c->cubeScale[2] = sz; }
 void setCubeTheta(Cubo c, GLfloat rx, GLfloat ry, GLfloat rz) { c->cubeTheta[0] = rx; c->cubeTheta[1] = ry; c->cubeTheta[2] = rz; }
-void setCubeDir(Cubo c, GLfloat dx, GLfloat dy, GLfloat dz) { c->dir[0] = dx; c->dir[1] = dy; c->dir[2] = dz; }
-void setCubeVel(Cubo c, GLfloat vx, GLfloat vy, GLfloat vz) { c->vel[0] = vx; c->vel[1] = vy; c->vel[2] = vz; }
 void setCubeColor(Cubo c, GLfloat r, GLfloat g, GLfloat b) { c->color[0] = r; c->color[1] = g; c->color[2] = b; }
+void setCubeAlpha(Cubo c, GLfloat alpha) { c->alpha = alpha; }
+void setCubeBeta(Cubo c, GLfloat beta) { c->beta = beta; }
+void setCubeVel(Cubo c, GLfloat vel) { c->vel = vel; }
 void setCubeShow(Cubo c, int show) { c->show = show; }
 void setCubeShowAxis(Cubo c, int showAxis) { c->showAxis = showAxis; }
 

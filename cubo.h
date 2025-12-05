@@ -6,24 +6,31 @@
 typedef struct cubo* Cubo;
 
 Cubo newCubo();
-Cubo newCuboP(GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat);
+/**
+Translate / Scale / Theta / Color / Vel / Alpha / Beta
+*/
+Cubo newCuboP(GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat);
 Cubo newCuboC(Cubo);
 
 GLfloat* getCubeTranslate(Cubo);
 GLfloat* getCubeScale(Cubo);
 GLfloat* getCubeTheta(Cubo);
-GLfloat* getCubeDir(Cubo);
-GLfloat* getCubeVel(Cubo);
 GLfloat* getCubeColor(Cubo);
+GLfloat getCubeAlpha(Cubo);
+GLfloat getCubeBeta(Cubo);
+GLfloat getCubeVel(Cubo);
+GLfloat getCubeShow(Cubo);
+GLfloat getCubeShowAxis(Cubo);
 
-void setCubeTranslate(Cubo c, GLfloat tx, GLfloat ty, GLfloat tz);
-void setCubeScale(Cubo c, GLfloat sx, GLfloat sy, GLfloat sz);
-void setCubeTheta(Cubo c, GLfloat rx, GLfloat ry, GLfloat rz);
-void setCubeDir(Cubo c, GLfloat dx, GLfloat dy, GLfloat dz);
-void setCubeVel(Cubo c, GLfloat vx, GLfloat vy, GLfloat vz);
-void setCubeColor(Cubo c, GLfloat r, GLfloat g, GLfloat b);
-void setCubeShow(Cubo c, int show);
-void setCubeShowAxis(Cubo c, int showAxis);
+void setCubeTranslate(Cubo, GLfloat, GLfloat, GLfloat);
+void setCubeScale(Cubo, GLfloat, GLfloat, GLfloat);
+void setCubeTheta(Cubo, GLfloat, GLfloat, GLfloat);
+void setCubeColor(Cubo, GLfloat, GLfloat, GLfloat);
+void setCubeAlpha(Cubo, GLfloat);
+void setCubeBeta(Cubo, GLfloat);
+void setCubeVel(Cubo, GLfloat);
+void setCubeShow(Cubo, int);
+void setCubeShowAxis(Cubo, int);
 
 void deleteCube(Cubo);
 
