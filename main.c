@@ -5,32 +5,24 @@
 #include "cubo.h"
 
 GLfloat worldTranslate[] = { 0.0, 0.0, 0.0 };
-GLfloat worldScale[] = { 0.1, 0.1, 0.1 };
+GLfloat worldScale[] = { 1.0, 1.0, 1.0 };
 GLfloat worldTheta[] = { 0.0, 0.0, 0.0 };
 
-#define NUM_CUBES 100
+#define NUM_CUBES 2
+#define WINDOWWIDTH 1000
+#define WINDOWHEIGHT 1000
+
+#define WORLDCUBESIZE 2
 
 Cubo cubes[NUM_CUBES];
+Cubo worldCube;
 
-int tempo = 1000;
+int tempo = 16;
 
-void drawGrid()
+void drawWorldCube()
 {
-	glColor3f(0.3f, 0.3f, 0.3f);
-	glBegin(GL_LINES);
-
-	for (int i = -50; i <= 50; i++) {
-
-		// Lines parallel to X (varying Z)
-		glVertex3f(-50.0f, 0.0f, (float)i);
-		glVertex3f(+50.0f, 0.0f, (float)i);
-
-		// Lines parallel to Z (varying X)
-		glVertex3f((float)i, 0.0f, -50.0f);
-		glVertex3f((float)i, 0.0f, +50.0f);
-	}
-
-	glEnd();
+	glColor3f(1.0, 1.0, 1.0);
+	drawCube(worldCube);
 }
 
 void drawWorldAxis()
@@ -58,7 +50,7 @@ void drawFunc() {
 	glRotatef(worldTheta[2], 0.0, 0.0, 1.0);
 	glScalef(worldScale[0], worldScale[1], worldScale[2]);
 
-	drawGrid();
+	drawWorldCube();
 	drawWorldAxis();
 
 	for (int i = 0; i < NUM_CUBES; i++) {
@@ -75,9 +67,9 @@ void genCubes() {
 		if (cubes[i] != NULL) deleteCube(cubes[i]);
 	}
 
-	float minX = -50.0f, maxX = 50.0f;
-	float minY = -50.0f, maxY = 50.0f;
-	float minZ = -50.0f, maxZ = 50.0f;
+	float minX = -WORLDCUBESIZE / 2, maxX = WORLDCUBESIZE / 2;
+	float minY = -WORLDCUBESIZE / 2, maxY = WORLDCUBESIZE / 2;
+	float minZ = -WORLDCUBESIZE / 2, maxZ = WORLDCUBESIZE / 2;
 
 	for (int i = 0; i < NUM_CUBES; i++) {
 
@@ -85,15 +77,15 @@ void genCubes() {
 		float y = minY + ((float)rand() / RAND_MAX) * (maxY - minY);
 		float z = minZ + ((float)rand() / RAND_MAX) * (maxZ - minZ);
 
-		float vel = 0.02 + ((float)rand() / RAND_MAX) * 0.08;   // 0.02–0.10
+		float vel = 0.001 + ((float)rand() / RAND_MAX) * 0.005;   // 0.001–0.06
 		float alpha = ((float)rand() / RAND_MAX) * 360.0;       // 0–360°
 		float beta = ((float)rand() / RAND_MAX) * 360.0;        // 0–360°
 
-		cubes[i] = newCuboP(
+		cubes[i] = newCubeP(
 			x, y, z,
-			1.0f, 1.0f, 1.0f,
-			0.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 0.0f,
+			0.1, 0.1, 0.1,
+			0.0, 0.0, 0.0,
+			0.0, 0.0, 0.0,
 			vel, alpha, beta
 		);
 
@@ -154,30 +146,8 @@ void myTimerFunc(int n) {
 	printf("CLOCK: %d\n", i);
 
 	for (int i = 0; i < NUM_CUBES; i++) {
-
-		Cubo c = cubes[i];
-		if (c == NULL) continue;
-
-		float vel = getCubeVel(c);
-		float a = getCubeAlpha(c) * PI / 180.0;
-		float b = getCubeBeta(c) * PI / 180.0;
-
-		float dx = vel * cos(a);
-		float dy = vel * sin(a);
-		float dz = vel * sin(b);
-
-		updateCubeTranslate(c, dx, dy, dz);
-
-		GLfloat* cubeTranslate = getCubeTranslate(c);
-
-		for (int k = 0; k < 3; k++) {
-
-			if (cubeTranslate[k] > 50.0 || cubeTranslate[k] < -50.0) {
-				setCubeVel(c, -vel);
-			}
-		}
+		if (cubes[i] != NULL) updateCube(cubes[i], WORLDCUBESIZE);
 	}
-
 
 	glutPostRedisplay();
 	glutTimerFunc(tempo, myTimerFunc, i);
@@ -201,6 +171,16 @@ void myReshape(int w, int h)
 int main(int argc, char** argv) 
 {
 
+	worldCube = newCubeP(
+		0, 0, 0,
+		1, 1, 1,
+		0, 0, 0,
+		1, 1, 1,
+		0, 0, 0
+	);
+
+	setCubeWireframe(worldCube, 1);
+
 	for (int i = 0; i < NUM_CUBES; i++) {
 		cubes[i] = NULL;
 	}
@@ -209,7 +189,7 @@ int main(int argc, char** argv)
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(1880, 1040);
+	glutInitWindowSize(WINDOWWIDTH, WINDOWHEIGHT);
 	glutCreateWindow("colorcube");
 	glutReshapeFunc(myReshape);
 	glutDisplayFunc(display);

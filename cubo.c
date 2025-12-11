@@ -1,6 +1,7 @@
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "cubo.h"
 
 GLfloat vertices[][3] = {
@@ -30,10 +31,10 @@ struct cubo {
     GLfloat alpha; // angulo xy
     GLfloat beta;  // angulo xz
     GLfloat vel;
-    int show, showAxis;
+    GLint show, showAxis, wireframe;
 };
 
-Cubo newCubo() {
+Cubo newCube() {
     Cubo c = malloc(sizeof(struct cubo));
     for (int i = 0; i < 3; i++) {
         c->cubeTranslate[i] = 0.0;
@@ -46,10 +47,11 @@ Cubo newCubo() {
     c->vel = 0.0;
     c->show = 1;
     c->showAxis = 0;
+    c->wireframe = 0;
     return c;
 }
 
-Cubo newCuboP(GLfloat tx, GLfloat ty, GLfloat tz,
+Cubo newCubeP(GLfloat tx, GLfloat ty, GLfloat tz,
     GLfloat sx, GLfloat sy, GLfloat sz,
     GLfloat rx, GLfloat ry, GLfloat rz,
     GLfloat r, GLfloat g, GLfloat b,
@@ -73,10 +75,11 @@ Cubo newCuboP(GLfloat tx, GLfloat ty, GLfloat tz,
     c->vel = vel;
     c->show = 1;
     c->showAxis = 0;
+    c->wireframe = 0;
     return c;
 }
 
-Cubo newCuboC(Cubo src) {
+Cubo newCubeC(Cubo src) {
     Cubo c = malloc(sizeof(struct cubo));
     for (int i = 0; i < 3; i++) {
         c->cubeTranslate[i] = src->cubeTranslate[i];
@@ -101,6 +104,7 @@ GLfloat getCubeBeta(Cubo c) { return c->beta; }
 GLfloat getCubeVel(Cubo c) { return c->vel; }
 GLfloat getCubeShow(Cubo c) { return c->show; }
 GLfloat getCubeShowAxis(Cubo c) { return c->showAxis; }
+GLfloat getCubeWireFrame(Cubo c) { return c->wireframe; }
 
 void setCubeTranslate(Cubo c, GLfloat tx, GLfloat ty, GLfloat tz) { c->cubeTranslate[0] = tx; c->cubeTranslate[1] = ty; c->cubeTranslate[2] = tz; }
 void setCubeScale(Cubo c, GLfloat sx, GLfloat sy, GLfloat sz) { c->cubeScale[0] = sx; c->cubeScale[1] = sy; c->cubeScale[2] = sz; }
@@ -109,30 +113,60 @@ void setCubeColor(Cubo c, GLfloat r, GLfloat g, GLfloat b) { c->color[0] = r; c-
 void setCubeAlpha(Cubo c, GLfloat alpha) { c->alpha = alpha; }
 void setCubeBeta(Cubo c, GLfloat beta) { c->beta = beta; }
 void setCubeVel(Cubo c, GLfloat vel) { c->vel = vel; }
-void setCubeShow(Cubo c, int show) { c->show = show; }
-void setCubeShowAxis(Cubo c, int showAxis) { c->showAxis = showAxis; }
+void setCubeShow(Cubo c, GLint show) { c->show = show; }
+void setCubeShowAxis(Cubo c, GLint showAxis) { c->showAxis = showAxis; }
+void setCubeWireframe(Cubo c, GLint wireframe) { c->wireframe = wireframe; }
 
 void deleteCube(Cubo c) {
     free(c);
 }
 
-void updateCubeTranslate(Cubo c, float dx, float dy, float dz) {
+void updateCubeTranslate(Cubo c, GLfloat dx, GLfloat dy, GLfloat dz) {
     c->cubeTranslate[0] += dx;
     c->cubeTranslate[1] += dy;
     c->cubeTranslate[2] += dz;
 }
 
-void updateCubeScale(Cubo c, float sx, float sy, float sz) {
+void updateCubeScale(Cubo c, GLfloat sx, GLfloat sy, GLfloat sz) {
     c->cubeScale[0] = sx;
     c->cubeScale[1] = sy;
     c->cubeScale[2] = sz;
 }
 
+void updateCube(Cubo c, GLfloat worldSize) {
+    GLfloat a = c->alpha * PI / 180.0;
+    GLfloat b = c->beta * PI / 180.0;
+    GLfloat dx = c->vel * cos(a);
+    GLfloat dy = c->vel * sin(a);
+    GLfloat dz = c->vel * sin(b);
+
+    updateCubeTranslate(c, dx, dy, dz);
+
+    GLfloat halfWorldSize = worldSize / 2.0;
+
+    if (c->cubeTranslate[0] > halfWorldSize || c->cubeTranslate[0] < -halfWorldSize) {
+        c->alpha = 180.0 - c->alpha; 
+        if (c->cubeTranslate[0] > halfWorldSize) c->cubeTranslate[0] = halfWorldSize;
+        if (c->cubeTranslate[0] < -halfWorldSize) c->cubeTranslate[0] = -halfWorldSize;
+    }
+    if (c->cubeTranslate[1] > halfWorldSize || c->cubeTranslate[1] < -halfWorldSize) {
+        c->alpha = -c->alpha;
+        if (c->cubeTranslate[1] > halfWorldSize) c->cubeTranslate[1] = halfWorldSize;
+        if (c->cubeTranslate[1] < -halfWorldSize) c->cubeTranslate[1] = -halfWorldSize;
+    }
+    if (c->cubeTranslate[2] > halfWorldSize || c->cubeTranslate[2] < -halfWorldSize) {
+        c->beta = -c->beta;
+        if (c->cubeTranslate[2] > halfWorldSize) c->cubeTranslate[2] = halfWorldSize;
+        if (c->cubeTranslate[2] < -halfWorldSize) c->cubeTranslate[2] = -halfWorldSize;
+    }
+
+}
+
 int collisionCheck(Cubo a, Cubo b) {
     for (int i = 0; i < 3; i++) {
-        float da = a->cubeTranslate[i] - b->cubeTranslate[i];
-        float sa = a->cubeScale[i];
-        float sb = b->cubeScale[i];
+        GLfloat da = a->cubeTranslate[i] - b->cubeTranslate[i];
+        GLfloat sa = a->cubeScale[i];
+        GLfloat sb = b->cubeScale[i];
         if (abs(da) > sa + sb) return 0;
     }
     return 1;
@@ -171,6 +205,20 @@ void polygon(int v0, int v1, int v2, int v3, Cubo cube)
     glEnd();
 }
 
+void square(int v0, int v1, int v2, int v3, Cubo cube)
+{
+    glColor3fv(cube->color);
+
+    glBegin(GL_LINE_LOOP);
+
+    glVertex3fv(vertices[v0]);
+    glVertex3fv(vertices[v1]);
+    glVertex3fv(vertices[v2]);
+    glVertex3fv(vertices[v3]);
+
+    glEnd();
+}
+
 void drawCube(Cubo c) {
 
     if (!c->show) return;
@@ -184,12 +232,22 @@ void drawCube(Cubo c) {
     glScalef(c->cubeScale[0], c->cubeScale[1], c->cubeScale[2]);
     glColor3fv(c->color);
 
-    polygon(0, 3, 2, 1, c);
-    polygon(2, 3, 7, 6, c);
-    polygon(0, 4, 7, 3, c);
-    polygon(1, 2, 6, 5, c);
-    polygon(4, 5, 6, 7, c);
-    polygon(0, 1, 5, 4, c);
+    if (c->wireframe) {
+        square(0, 3, 2, 1, c);
+        square(2, 3, 7, 6, c);
+        square(0, 4, 7, 3, c);
+        square(1, 2, 6, 5, c);
+        square(4, 5, 6, 7, c);
+        square(0, 1, 5, 4, c);
+    }
+    else {
+        polygon(0, 3, 2, 1, c);
+        polygon(2, 3, 7, 6, c);
+        polygon(0, 4, 7, 3, c);
+        polygon(1, 2, 6, 5, c);
+        polygon(4, 5, 6, 7, c);
+        polygon(0, 1, 5, 4, c);
+    }
 
     glPopMatrix();
 }
