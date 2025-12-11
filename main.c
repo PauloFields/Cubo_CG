@@ -17,7 +17,9 @@ GLfloat worldTheta[] = { 0.0, 0.0, 0.0 };
 Cubo cubes[NUM_CUBES];
 Cubo worldCube;
 
-int tempo = 16;
+#define FPS 60;
+GLint tempo = 1000 / FPS; // tempo por divisão
+
 
 void drawWorldCube()
 {
@@ -54,7 +56,7 @@ void drawFunc() {
 	drawWorldAxis();
 
 	for (int i = 0; i < NUM_CUBES; i++) {
-		drawCube(cubes[i]);
+		draw(cubes[i]);
 	}
 
 	glPopMatrix();
@@ -77,7 +79,7 @@ void genCubes() {
 		float y = minY + ((float)rand() / RAND_MAX) * (maxY - minY);
 		float z = minZ + ((float)rand() / RAND_MAX) * (maxZ - minZ);
 
-		float vel = 0.001 + ((float)rand() / RAND_MAX) * 0.005;   // 0.001–0.06
+		float vel = 0 *( 0.01 + ((float)rand() / RAND_MAX) * 0.05);   // 0.01–0.6
 		float alpha = ((float)rand() / RAND_MAX) * 360.0;       // 0–360°
 		float beta = ((float)rand() / RAND_MAX) * 360.0;        // 0–360°
 
@@ -86,7 +88,8 @@ void genCubes() {
 			0.1, 0.1, 0.1,
 			0.0, 0.0, 0.0,
 			0.0, 0.0, 0.0,
-			vel, alpha, beta
+			vel, alpha, beta,
+			BONECO
 		);
 
 		setCubeColor(cubes[i], (float)i / NUM_CUBES, 1.0 - (float)i / NUM_CUBES, 0.5);
@@ -146,7 +149,7 @@ void myTimerFunc(int n) {
 	printf("CLOCK: %d\n", i);
 
 	for (int i = 0; i < NUM_CUBES; i++) {
-		if (cubes[i] != NULL) updateCube(cubes[i], WORLDCUBESIZE);
+		if (cubes[i] != NULL) updateCube(cubes[i], WORLDCUBESIZE, tempo);
 	}
 
 	glutPostRedisplay();
@@ -176,7 +179,7 @@ int main(int argc, char** argv)
 		1, 1, 1,
 		0, 0, 0,
 		1, 1, 1,
-		0, 0, 0
+		0, 0, 0, CUBO
 	);
 
 	setCubeWireframe(worldCube, 1);

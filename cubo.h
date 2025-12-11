@@ -3,10 +3,14 @@
 
 #define PI 3.141592653589
 
+enum tipo {
+	CUBO, BONECO
+};
+
 typedef struct cubo* Cubo;
 
 Cubo newCube();
-Cubo newCubeP(GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat);
+Cubo newCubeP(GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, enum tipo);
 Cubo newCubeC(Cubo);
 
 GLfloat* getCubeTranslate(Cubo);
@@ -35,11 +39,11 @@ void deleteCube(Cubo);
 
 void updateCubeTranslate(Cubo, GLfloat, GLfloat, GLfloat);
 void updateCubeScale(Cubo, GLfloat, GLfloat, GLfloat);
-void updateCube(Cubo, GLfloat);
+void updateCube(Cubo, GLfloat, GLint);
 
 int collisionCheck(Cubo a, Cubo b);
 
 void printCube(Cubo);
-void drawCube(Cubo);
+void draw(Cubo);
 
 #endif

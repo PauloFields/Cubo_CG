@@ -4,6 +4,8 @@
 #include <math.h>
 #include "cubo.h"
 
+#define ITER_MAX 1.0
+
 GLfloat vertices[][3] = {
     { -1.0, -1.0, -1.0},
     {  1.0, -1.0, -1.0},
@@ -32,6 +34,11 @@ struct cubo {
     GLfloat beta;  // angulo xz
     GLfloat vel;
     GLint show, showAxis, wireframe;
+
+    GLfloat vInterna;
+    GLint iInterna;
+    
+    enum tipo type;
 };
 
 Cubo newCube() {
@@ -55,7 +62,7 @@ Cubo newCubeP(GLfloat tx, GLfloat ty, GLfloat tz,
     GLfloat sx, GLfloat sy, GLfloat sz,
     GLfloat rx, GLfloat ry, GLfloat rz,
     GLfloat r, GLfloat g, GLfloat b,
-    GLfloat vel, GLfloat alpha, GLfloat beta) {
+    GLfloat vel, GLfloat alpha, GLfloat beta, enum tipo type) {
 
     Cubo c = malloc(sizeof(struct cubo));
     c->cubeTranslate[0] = tx;
@@ -76,6 +83,7 @@ Cubo newCubeP(GLfloat tx, GLfloat ty, GLfloat tz,
     c->show = 1;
     c->showAxis = 0;
     c->wireframe = 0;
+    c->type = type;
     return c;
 }
 
@@ -133,32 +141,15 @@ void updateCubeScale(Cubo c, GLfloat sx, GLfloat sy, GLfloat sz) {
     c->cubeScale[2] = sz;
 }
 
-void updateCube(Cubo c, GLfloat worldSize) {
+void updateCube(Cubo c, GLfloat worldSize, GLint timer) {
+
     GLfloat a = c->alpha * PI / 180.0;
     GLfloat b = c->beta * PI / 180.0;
-    GLfloat dx = c->vel * cos(a);
-    GLfloat dy = c->vel * sin(a);
-    GLfloat dz = c->vel * sin(b);
+    GLfloat dx = c->vel * cos(a) * timer;
+    GLfloat dy = c->vel * sin(a) * timer;
+    GLfloat dz = c->vel * sin(b) * timer;
 
     updateCubeTranslate(c, dx, dy, dz);
-
-    GLfloat halfWorldSize = worldSize / 2.0;
-
-    if (c->cubeTranslate[0] > halfWorldSize || c->cubeTranslate[0] < -halfWorldSize) {
-        c->alpha = 180.0 - c->alpha; 
-        if (c->cubeTranslate[0] > halfWorldSize) c->cubeTranslate[0] = halfWorldSize;
-        if (c->cubeTranslate[0] < -halfWorldSize) c->cubeTranslate[0] = -halfWorldSize;
-    }
-    if (c->cubeTranslate[1] > halfWorldSize || c->cubeTranslate[1] < -halfWorldSize) {
-        c->alpha = -c->alpha;
-        if (c->cubeTranslate[1] > halfWorldSize) c->cubeTranslate[1] = halfWorldSize;
-        if (c->cubeTranslate[1] < -halfWorldSize) c->cubeTranslate[1] = -halfWorldSize;
-    }
-    if (c->cubeTranslate[2] > halfWorldSize || c->cubeTranslate[2] < -halfWorldSize) {
-        c->beta = -c->beta;
-        if (c->cubeTranslate[2] > halfWorldSize) c->cubeTranslate[2] = halfWorldSize;
-        if (c->cubeTranslate[2] < -halfWorldSize) c->cubeTranslate[2] = -halfWorldSize;
-    }
 
 }
 
@@ -221,8 +212,6 @@ void square(int v0, int v1, int v2, int v3, Cubo cube)
 
 void drawCube(Cubo c) {
 
-    if (!c->show) return;
-
     glPushMatrix();
 
     glTranslatef(c->cubeTranslate[0], c->cubeTranslate[1], c->cubeTranslate[2]);
@@ -247,6 +236,59 @@ void drawCube(Cubo c) {
         polygon(1, 2, 6, 5, c);
         polygon(4, 5, 6, 7, c);
         polygon(0, 1, 5, 4, c);
+    }
+
+    glPopMatrix();
+
+}
+
+void drawBoneco(Cubo c) {
+
+    glPushMatrix();
+    glTranslatef(c->cubeTranslate[0], c->cubeTranslate[1], c->cubeTranslate[2]);
+
+    Cubo cabeca = newCubeP(0, 1.5, 0, 0.6, 0.6, 0.6, 0, 0, 0,
+        c->color[0], c->color[1], c->color[2],
+        0, 0, 0, CUBO);
+    drawCube(cabeca);
+    deleteCube(cabeca);
+
+    Cubo corpo = newCubeP(0, 0.5, 0, 0.7, 1.2, 0.4, 0, 0, 0,
+        c->color[0], c->color[1], c->color[2],
+        0, 0, 0, CUBO);
+    drawCube(corpo);
+    deleteCube(corpo);
+
+    Cubo perna1 = newCubeP(-0.3, -1.0, 0, 0.3, 1.0, 0.3, 0, 0, 0,
+        c->color[0], c->color[1], c->color[2],
+        0, 0, 0, CUBO);
+    drawCube(perna1);
+    deleteCube(perna1);
+
+    Cubo perna2 = newCubeP(0.3, -1.0, 0, 0.3, 1.0, 0.3, 0, 0, 0,
+        c->color[0], c->color[1], c->color[2],
+        0, 0, 0, CUBO);
+    drawCube(perna2);
+    deleteCube(perna2);
+
+    glPopMatrix();
+}
+
+void draw(Cubo c) {
+
+    if (!c->show) return;
+
+    glPushMatrix();
+
+    switch (c->type) {
+     case CUBO:
+         drawCube(c);
+         break;
+     case BONECO:
+         drawBoneco(c);
+         break;
+     default:
+         break;
     }
 
     glPopMatrix();
