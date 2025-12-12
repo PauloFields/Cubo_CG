@@ -10,7 +10,7 @@ enum tipo {
 typedef struct cubo* Cubo;
 
 Cubo newCube();
-Cubo newCubeP(GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, enum tipo);
+Cubo newCubeP(GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, enum tipo, GLfloat);
 Cubo newCubeC(Cubo);
 
 GLfloat* getCubeTranslate(Cubo);

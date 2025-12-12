@@ -36,7 +36,8 @@ struct cubo {
     GLint show, showAxis, wireframe;
 
     GLfloat vInterna;
-    GLint iInterna;
+    GLfloat iSwing;
+    GLfloat iRound;
     
     enum tipo type;
 };
@@ -55,6 +56,10 @@ Cubo newCube() {
     c->show = 1;
     c->showAxis = 0;
     c->wireframe = 0;
+    c->type = CUBO;
+    c->vInterna = 0.0;
+    c->iSwing = 0.0;
+    c->iRound = -1.0;
     return c;
 }
 
@@ -62,7 +67,8 @@ Cubo newCubeP(GLfloat tx, GLfloat ty, GLfloat tz,
     GLfloat sx, GLfloat sy, GLfloat sz,
     GLfloat rx, GLfloat ry, GLfloat rz,
     GLfloat r, GLfloat g, GLfloat b,
-    GLfloat vel, GLfloat alpha, GLfloat beta, enum tipo type) {
+    GLfloat vel, GLfloat alpha, GLfloat beta, enum tipo type,
+    GLfloat vInterna) {
 
     Cubo c = malloc(sizeof(struct cubo));
     c->cubeTranslate[0] = tx;
@@ -84,6 +90,9 @@ Cubo newCubeP(GLfloat tx, GLfloat ty, GLfloat tz,
     c->showAxis = 0;
     c->wireframe = 0;
     c->type = type;
+    c->vInterna = vInterna;
+    c->iSwing = 0.0;
+    c->iRound = -1.0;
     return c;
 }
 
@@ -141,6 +150,22 @@ void updateCubeScale(Cubo c, GLfloat sx, GLfloat sy, GLfloat sz) {
     c->cubeScale[2] = sz;
 }
 
+void updateAnim(Cubo c) {
+
+    c->iSwing += c->vInterna;
+    if (c->iSwing >= 1.0) {
+        c->iSwing = 1.0;
+        c->vInterna = -c->vInterna;
+    }
+    else if (c->iSwing <= -1.0) {
+        c->iSwing = -1.0;
+        c->vInterna = -c->vInterna;
+    }
+
+    c->iRound += c->vInterna;
+    if (c->iRound > 1.0) c->iRound = -1.0;
+}
+
 void updateCube(Cubo c, GLfloat worldSize, GLint timer) {
 
     GLfloat a = c->alpha * PI / 180.0;
@@ -150,7 +175,7 @@ void updateCube(Cubo c, GLfloat worldSize, GLint timer) {
     GLfloat dz = c->vel * sin(b) * timer;
 
     updateCubeTranslate(c, dx, dy, dz);
-
+    updateAnim(c);
 }
 
 int collisionCheck(Cubo a, Cubo b) {
@@ -246,28 +271,34 @@ void drawBoneco(Cubo c) {
 
     glPushMatrix();
     glTranslatef(c->cubeTranslate[0], c->cubeTranslate[1], c->cubeTranslate[2]);
+    GLfloat mappedThetaSwing = (c->iSwing + 1.0) / 2.0 * 360.0;
+    GLfloat mappedThetaRound = (c->iRound + 1.0) / 2.0 * 360.0;
+    glRotatef(mappedThetaRound, 1, 0, 0);
+    glRotatef(mappedThetaRound, 0, 1, 0);
+    glRotatef(mappedThetaRound, 0, 0, 1);
+    glScalef(c->cubeScale[0], c->cubeScale[1], c->cubeScale[2]);
 
-    Cubo cabeca = newCubeP(0, 0.9, 0, 0.1, 0.1, 0.1, 0, 0, 0, 0, 0, 1, 0, 0, 0, CUBO);
+    Cubo cabeca = newCubeP(0, 0.9, 0, 0.1, 0.1, 0.1, 0, 0, 0, 0, 0, 1, 0, 0, 0, CUBO, 0);
     drawCube(cabeca);
     deleteCube(cabeca);
 
-    Cubo corpo = newCubeP(0, 0.3, 0, 0.5, 0.5, 0.2, 0, 0, 0, 1, 0, 0, 0, 0, 0, CUBO);
+    Cubo corpo = newCubeP(0, 0.3, 0, 0.5, 0.5, 0.2, 0, 0, 0, 1, 0, 0, 0, 0, 0, CUBO, 0);
     drawCube(corpo);
     deleteCube(corpo);
 
-    Cubo braco1 = newCubeP(-0.6, 0.1, 0, 0.1, 0.5, 0.1, 0, 0, 0, 0, 1, 0, 0, 0, 0, CUBO);
+    Cubo braco1 = newCubeP(-0.6, 0.1, 0, 0.1, 0.5, 0.1, 0, 0, 0, 0, 1, 0, 0, 0, 0, CUBO, 0);
     drawCube(braco1);
     deleteCube(braco1);
 
-    Cubo braco2 = newCubeP(0.6, 0.1, 0, 0.1, 0.5, 0.1, 0, 0, 0, 1, 1, 0, 0, 0, 0, CUBO);
+    Cubo braco2 = newCubeP(0.6, 0.1, 0, 0.1, 0.5, 0.1, 0, 0, 0, 1, 1, 0, 0, 0, 0, CUBO, 0);
     drawCube(braco2);
     deleteCube(braco2);
 
-    Cubo perna1 = newCubeP(-0.3, -0.6, 0, 0.1, 0.4, 0.1, 0, 0, 0, 1, 0, 1, 0, 0, 0, CUBO);
+    Cubo perna1 = newCubeP(-0.3, -0.6, 0, 0.1, 0.4, 0.1, 0, 0, 0, 1, 0, 1, 0, 0, 0, CUBO,0);
     drawCube(perna1);
     deleteCube(perna1);
 
-    Cubo perna2 = newCubeP(0.3, -0.6, 0, 0.1, 0.4, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 0, CUBO);
+    Cubo perna2 = newCubeP(0.3, -0.6, 0, 0.1, 0.4, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 0, CUBO,0);
     drawCube(perna2);
     deleteCube(perna2);
 

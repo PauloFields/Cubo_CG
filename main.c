@@ -8,7 +8,7 @@ GLfloat worldTranslate[] = { 0.0, 0.0, 0.0 };
 GLfloat worldScale[] = { 1.0, 1.0, 1.0 };
 GLfloat worldTheta[] = { 0.0, 0.0, 0.0 };
 
-#define NUM_CUBES 1
+#define NUM_CUBES 100
 #define WINDOWWIDTH 1000
 #define WINDOWHEIGHT 1000
 
@@ -66,7 +66,10 @@ void genCubes() {
 
 
 	for (int i = 0; i < NUM_CUBES; i++) {
-		if (cubes[i] != NULL) deleteCube(cubes[i]);
+		if (cubes[i] != NULL) {
+			deleteCube(cubes[i]);
+			cubes[i] = NULL;
+		}
 	}
 
 	float minX = -WORLDCUBESIZE / 2, maxX = WORLDCUBESIZE / 2;
@@ -79,18 +82,16 @@ void genCubes() {
 		float y = minY + ((float)rand() / RAND_MAX) * (maxY - minY);
 		float z = minZ + ((float)rand() / RAND_MAX) * (maxZ - minZ);
 
-		float vel = 0 *( 0.01 + ((float)rand() / RAND_MAX) * 0.05);   // 0.01–0.6
+		float vel = 0.001 + ((float)rand() / RAND_MAX) * 0.005;   // 0.001–0.006
 		float alpha = ((float)rand() / RAND_MAX) * 360.0;       // 0–360°
 		float beta = ((float)rand() / RAND_MAX) * 360.0;        // 0–360°
 
-		cubes[i] = newCubeP(
-			x, y, z,
+		cubes[i] = newCubeP( x, y, z,
 			0.1, 0.1, 0.1,
 			0.0, 0.0, 0.0,
 			0.0, 0.0, 0.0,
 			vel, alpha, beta,
-			CUBO
-		);
+			BONECO, 0.1 );
 
 		setCubeColor(cubes[i], (float)i / NUM_CUBES, 1.0 - (float)i / NUM_CUBES, 0.5);
 	}
@@ -179,27 +180,12 @@ int main(int argc, char** argv)
 		1, 1, 1,
 		0, 0, 0,
 		1, 1, 1,
-		0, 0, 0, CUBO
+		0, 0, 0, CUBO, 0
 	);
 
 	setCubeWireframe(worldCube, 1);
 
-	for (int i = 0; i < NUM_CUBES; i++) {
-		cubes[i] = NULL;
-	}
-
 	genCubes();
-
-	deleteCube(cubes[0]);
-
-	cubes[0] = newCubeP(
-		0, 0, 0,
-		1.0, 1.0, 1.0,
-		0.0, 0.0, 0.0,
-		1.0, 1.0, 1.0,
-		0, 0, 0,
-		BONECO
-	);
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
