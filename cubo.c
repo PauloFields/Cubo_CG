@@ -247,27 +247,27 @@ void drawBoneco(Cubo c) {
     glPushMatrix();
     glTranslatef(c->cubeTranslate[0], c->cubeTranslate[1], c->cubeTranslate[2]);
 
-    Cubo cabeca = newCubeP(0, 1.5, 0, 0.6, 0.6, 0.6, 0, 0, 0,
-        c->color[0], c->color[1], c->color[2],
-        0, 0, 0, CUBO);
+    Cubo cabeca = newCubeP(0, 0.9, 0, 0.1, 0.1, 0.1, 0, 0, 0, 0, 0, 1, 0, 0, 0, CUBO);
     drawCube(cabeca);
     deleteCube(cabeca);
 
-    Cubo corpo = newCubeP(0, 0.5, 0, 0.7, 1.2, 0.4, 0, 0, 0,
-        c->color[0], c->color[1], c->color[2],
-        0, 0, 0, CUBO);
+    Cubo corpo = newCubeP(0, 0.3, 0, 0.5, 0.5, 0.2, 0, 0, 0, 1, 0, 0, 0, 0, 0, CUBO);
     drawCube(corpo);
     deleteCube(corpo);
 
-    Cubo perna1 = newCubeP(-0.3, -1.0, 0, 0.3, 1.0, 0.3, 0, 0, 0,
-        c->color[0], c->color[1], c->color[2],
-        0, 0, 0, CUBO);
+    Cubo braco1 = newCubeP(-0.6, 0.1, 0, 0.1, 0.5, 0.1, 0, 0, 0, 0, 1, 0, 0, 0, 0, CUBO);
+    drawCube(braco1);
+    deleteCube(braco1);
+
+    Cubo braco2 = newCubeP(0.6, 0.1, 0, 0.1, 0.5, 0.1, 0, 0, 0, 1, 1, 0, 0, 0, 0, CUBO);
+    drawCube(braco2);
+    deleteCube(braco2);
+
+    Cubo perna1 = newCubeP(-0.3, -0.6, 0, 0.1, 0.4, 0.1, 0, 0, 0, 1, 0, 1, 0, 0, 0, CUBO);
     drawCube(perna1);
     deleteCube(perna1);
 
-    Cubo perna2 = newCubeP(0.3, -1.0, 0, 0.3, 1.0, 0.3, 0, 0, 0,
-        c->color[0], c->color[1], c->color[2],
-        0, 0, 0, CUBO);
+    Cubo perna2 = newCubeP(0.3, -0.6, 0, 0.1, 0.4, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 0, CUBO);
     drawCube(perna2);
     deleteCube(perna2);
 

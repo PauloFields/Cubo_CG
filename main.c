@@ -8,7 +8,7 @@ GLfloat worldTranslate[] = { 0.0, 0.0, 0.0 };
 GLfloat worldScale[] = { 1.0, 1.0, 1.0 };
 GLfloat worldTheta[] = { 0.0, 0.0, 0.0 };
 
-#define NUM_CUBES 2
+#define NUM_CUBES 1
 #define WINDOWWIDTH 1000
 #define WINDOWHEIGHT 1000
 
@@ -89,7 +89,7 @@ void genCubes() {
 			0.0, 0.0, 0.0,
 			0.0, 0.0, 0.0,
 			vel, alpha, beta,
-			BONECO
+			CUBO
 		);
 
 		setCubeColor(cubes[i], (float)i / NUM_CUBES, 1.0 - (float)i / NUM_CUBES, 0.5);
@@ -189,6 +189,17 @@ int main(int argc, char** argv)
 	}
 
 	genCubes();
+
+	deleteCube(cubes[0]);
+
+	cubes[0] = newCubeP(
+		0, 0, 0,
+		1.0, 1.0, 1.0,
+		0.0, 0.0, 0.0,
+		1.0, 1.0, 1.0,
+		0.0, 0.0, 0,
+		BONECO
+	);
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
